@@ -52,11 +52,12 @@ jobs:
           echo "PROJ=$PROJ" >> "$GITHUB_ENV"
           test -f "$PROJ/app/libs/sherpa-onnx-1.13.8.aar" && echo AAR_OK
           test -d "$PROJ/app/src/main/assets/tessdata" && echo TESSDATA_OK
+          test -f "$PROJ/khanshgar.jks" && echo KEYSTORE_OK
 
-      - name: Apply v4.0 patches (ReadAloud + previous)
+      - name: Apply v5.0 patches
         run: |
           set -e
-          python3 ci/patch_v40.py
+          python3 ci/patch_v50.py
 
       - name: Setup Android SDK
         run: |
@@ -76,7 +77,7 @@ jobs:
           "$ANDROID_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_ROOT" \
             "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
-      - name: Build release APK
+      - name: Build signed release APK
         working-directory: ${{ env.PROJ }}
         run: |
           set -e
@@ -90,7 +91,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: KhanshgarZende-v4.0-apk
+          name: KhanshgarZende-v5.0-apk
           path: '**/app/build/outputs/apk/**/*.apk'
           if-no-files-found: error
           retention-days: 30
