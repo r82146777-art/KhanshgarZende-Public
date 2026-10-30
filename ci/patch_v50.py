@@ -66,7 +66,7 @@ st = strings_path.read_text(encoding='utf-8')
 if 'read_aloud_service_label' not in st:
     insert = '''
     <string name="read_aloud_service_label">خواندن با صدای بلند – خوانشگر زنده</string>
-    <string name="read_aloud_service_description">با روشن کردن این سرویس، خوانشگر زنده می‌تواند متن‌های پیام‌رسان‌ها (تلگرام، روبیکا، سروش، بله و …) و سایر برنامه‌ها را با صدای طبیعی خود برنامه بخواند.</string>
+    <string name="read_aloud_service_description">با روشن کردن این سرویس، خوانشگر زنده می‌تواند متن‌های پیام‌رسان‌ها را با صدای طبیعی خود برنامه بخواند.</string>
 '''
     st = st.replace('</resources>', insert + '</resources>')
     strings_path.write_text(st, encoding='utf-8')
@@ -92,8 +92,7 @@ if prefs_path.exists():
 '''
         idx = prefs.rfind('}')
         if idx > 0:
-            prefs = prefs[:idx] + extra + '\n' + prefs[idx:]
-            prefs_path.write_text(prefs, encoding='utf-8')
+            prefs_path.write_text(prefs[:idx] + extra + '\n' + prefs[idx:], encoding='utf-8')
             print('Prefs extended')
 
 # 5) VoicePacks EN+AR
@@ -122,22 +121,19 @@ if vp_path.exists():
         else:
             print('VoicePacks pattern skip')
 
-# 6) PersianText cleaner
+# 6) PersianText cleaner - simple, no bad escapes
 pt_path = src / 'PersianText.kt'
 if pt_path.exists():
     pt = pt_path.read_text(encoding='utf-8')
     if 'fun cleanOcrText' not in pt:
-        cleaner = '''
+        cleaner = r'''
     fun cleanOcrText(input: String): String {
         var s = normalize(input)
-        s = s.replace(Regex("[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\u001F]"), "")
-        s = s.replace(Regex("[|¦¬~^`]+"), " ")
+        s = s.replace(Regex("[|¦¬~^`]"), " ")
         s = s.replace(Regex("\\s+([.,!?;:،؛؟])"), "$1")
         s = s.replace(Regex("([.,!?;:،؛؟])(\\S)"), "$1 $2")
-        s = s.replace(Regex("[ \\t\\x0B\\f]+"), " ")
-        s = s.replace(Regex("\\n{3,}"), "\\n\\n")
-        s = s.replace(Regex("([\\u0600-\\u06FF])([A-Za-z])"), "$1 $2")
-        s = s.replace(Regex("([A-Za-z])([\\u0600-\\u06FF])"), "$1 $2")
+        s = s.replace(Regex("[ \\t]+"), " ")
+        s = s.replace(Regex("\\n{3,}"), "\n\n")
         return s.trim()
     }
 
@@ -146,11 +142,11 @@ if pt_path.exists():
         if (t.isEmpty()) return listOf()
         return when (mode) {
             "word" -> t.split(Regex("\\s+")).filter { it.isNotBlank() }
-            "line" -> t.split(Regex("\\r?\\n")).map { it.trim() }.filter { it.isNotEmpty() }
+            "line" -> t.lines().map { it.trim() }.filter { it.isNotEmpty() }
             else -> {
-                val parts = t.split(Regex("\\n\\s*\\n|\\r\\n\\s*\\r\\n"))
+                val parts = t.split(Regex("\n\\s*\n"))
                 if (parts.size > 1) parts.map { it.trim() }.filter { it.isNotEmpty() }
-                else t.split(Regex("(?<=[.!?؟۔])\\s+")).map { it.trim() }.filter { it.isNotEmpty() }
+                else listOf(t)
             }
         }
     }
@@ -160,7 +156,7 @@ if pt_path.exists():
             pt_path.write_text(pt[:idx] + cleaner + '\n' + pt[idx:], encoding='utf-8')
             print('PersianText cleaner added')
 
-# 7) TextViewer page turn + clean
+# 7) TextViewer
 tv_path = src / 'TextViewerActivity.kt'
 if tv_path.exists():
     tv = tv_path.read_text(encoding='utf-8')
