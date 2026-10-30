@@ -219,11 +219,11 @@ if cam.exists():
                 'preview.setOnLongClickListener { takeScenePhoto(false); true }\n        preview.setOnClickListener {',
                 1,
             )
-        if 'متن به‌خوبی خوانا نیست' in ct and 'ScanGuide' not in ct:
+        # FIXED: do not pass PreviewView as Bitmap
+        if 'متن به‌خوبی خوانا نیست' in ct and 'ScanGuide.forTextScan' not in ct:
             ct = ct.replace(
                 'val msg = "متن به‌خوبی خوانا نیست. گوشی را کمی دورتر یا نزدیک‌تر ببرید، نور را بیشتر کنید و ثابت نگه دارید."',
-                'val bright = try { scene?.brightness(preview) ?: 80f } catch (_: Throwable) { 80f }\n'
-                '            val msg = if (app.prefs.voiceGuide) ScanGuide.forTextScan(preview, r, bright) else '
+                'val msg = if (app.prefs.voiceGuide) ScanGuide.forTextScan(null, r, 80f) else '
                 '"متن به‌خوبی خوانا نیست. گوشی را کمی دورتر یا نزدیک‌تر ببرید، نور را بیشتر کنید و ثابت نگه دارید."',
             )
         if 'photoHandler' in ct:
