@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layoutDirection="rtl">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/batch_preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:background="#E60E1A2B"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/batch_counter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="صفحهٔ اسکن‌شده: 0"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/accent"
+            android:accessibilityLiveRegion="polite" />
+
+        <TextView
+            android:id="@+id/batch_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="16sp"
+            android:textColor="@color/text"
+            android:accessibilityLiveRegion="polite" />
+
+        <ScrollView
+            android:id="@+id/batch_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:layout_marginTop="6dp"
+            android:visibility="gone">
+            <TextView
+                android:id="@+id/batch_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textColor="@color/text"
+                android:textIsSelectable="true" />
+        </ScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_batch_capture"
+                android:layout_width="0dp"
+                android:layout_weight="1.4"
+                android:layout_height="wrap_content"
+                android:text="گرفتن صفحه"
+                android:contentDescription="گرفتن و خواندن صفحهٔ فعلی" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_batch_torch"
+                style="@style/SecondaryButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="چراغ‌قوه" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="6dp">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_batch_delete"
+                style="@style/SecondaryButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="حذف آخرین"
+                android:enabled="false"
+                android:contentDescription="حذف آخرین صفحهٔ اسکن‌شده" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_batch_finish"
+                android:layout_width="0dp"
+                android:layout_weight="1.2"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="پایان و ذخیره"
+                android:enabled="false"
+                android:contentDescription="ذخیرهٔ همهٔ صفحات در کتابخانه و خروج" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_batch_back"
+            style="@style/SecondaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="بازگشت"
+            android:contentDescription="بازگشت به صفحهٔ اصلی" />
+    </LinearLayout>
+</FrameLayout>
