@@ -48,7 +48,7 @@ if tv.exists():
     if "pageTurnClick" not in tt:
         for pat in ["currentPage++", "pageIndex++", "goNext", "nextPage", "setLastPage"]:
             if pat in tt:
-                tt = tt.replace(pat, "try { app { app.speech.pageTurnClick() } catch (_: Throwable) {}\n        " + pat, 1)
+                tt = tt.replace(pat, "try { app.speech.pageTurnClick() } catch (_: Throwable) {}\n        " + pat, 1)
                 break
         for pat in ["currentPage--", "pageIndex--", "goPrev", "prevPage"]:
             if pat in tt:
