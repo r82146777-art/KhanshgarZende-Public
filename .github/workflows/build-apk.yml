@@ -58,6 +58,7 @@ jobs:
           python3 ci/patch_v54b.py
           python3 ci/patch_v54c.py
           python3 ci/patch_v55b.py
+          python3 ci/patch_v55c.py
 
       - name: Setup Android SDK
         run: |
@@ -80,14 +81,13 @@ jobs:
       - name: Build signed release APK
         working-directory: ${{ env.PROJ }}
         run: |
-          set -e
+          set +e
           chmod +x gradlew
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           ./gradlew assembleRelease --no-daemon --stacktrace 2>&1 | tee /tmp/build.log
-          # extract errors
+          RC=${PIPESTATUS[0]}
           grep -E '^e: |error:' /tmp/build.log | head -40 || true
-          # fail if no apk
-          test -n "$(find app/build/outputs -name '*.apk' 2>/dev/null | head -1)"
+          exit $RC
 
       - name: Upload build log on failure
         if: failure()
@@ -98,6 +98,7 @@ jobs:
           retention-days: 7
 
       - name: Upload APK artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: KhanshgarZende-v5.5-apk
