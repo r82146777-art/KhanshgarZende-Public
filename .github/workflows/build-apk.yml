@@ -55,6 +55,7 @@ jobs:
         run: |
           set -e
           python3 ci/patch_v56.py
+          python3 ci/patch_v56b.py
 
       - name: Setup Android SDK
         run: |
