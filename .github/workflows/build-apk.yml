@@ -51,10 +51,10 @@ jobs:
           echo "PROJ=$PROJ"
           echo "PROJ=$PROJ" >> "$GITHUB_ENV"
 
-      - name: Apply v6.0 patches
+      - name: Apply v6.0b patches
         run: |
           set -e
-          python3 ci/patch_v60.py
+          python3 ci/patch_v60b.py
 
       - name: Setup Android SDK
         run: |
