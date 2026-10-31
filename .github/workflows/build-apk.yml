@@ -57,7 +57,10 @@ jobs:
       - name: Apply v5.5 patches
         run: |
           set -e
-          python3 ci/patch_v55.py
+          python3 ci/patch_v54.py
+          python3 ci/patch_v54b.py
+          python3 ci/patch_v54c.py
+          python3 ci/patch_v55b.py
 
       - name: Setup Android SDK
         run: |
