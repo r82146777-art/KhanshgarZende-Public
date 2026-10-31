@@ -54,7 +54,7 @@ jobs:
       - name: Apply v5.8 patches
         run: |
           set -e
-          python3 ci/patch_v58fix2.py
+          python3 ci/patch_v58fix3.py
 
       - name: Setup Android SDK
         run: |
