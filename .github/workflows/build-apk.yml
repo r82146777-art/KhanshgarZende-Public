@@ -54,12 +54,10 @@ jobs:
           test -d "$PROJ/app/src/main/assets/tessdata" && echo TESSDATA_OK
           test -f "$PROJ/khanshgar.jks" && echo KEYSTORE_OK
 
-      - name: Apply v5.4 patches
+      - name: Apply v5.5 patches
         run: |
           set -e
-          python3 ci/patch_v54.py
-          python3 ci/patch_v54b.py
-          python3 ci/patch_v54c.py
+          python3 ci/patch_v55.py
 
       - name: Setup Android SDK
         run: |
@@ -93,7 +91,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: KhanshgarZende-v5.4-apk
+          name: KhanshgarZende-v5.5-apk
           path: '**/app/build/outputs/apk/**/*.apk'
           if-no-files-found: error
           retention-days: 30
