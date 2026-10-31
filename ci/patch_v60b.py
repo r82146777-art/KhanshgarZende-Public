@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""v6.0b: OfflineAi only — minimal Settings touch, stub bindUnifiedApiV58."""
+"""v6.0b: OfflineAi only — minimal Settings touch."""
 from pathlib import Path
 import os, re, subprocess, sys
 
@@ -11,7 +11,7 @@ proj = Path(os.environ["PROJ"])
 src = proj / "app/src/main/java/com/example/khanshgarzende"
 res = proj / "app/src/main/res"
 
-offline_ai = r'''package com.example.khanshgarzende
+offline_ai = r"""package com.example.khanshgarzende
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -119,7 +119,7 @@ object OfflineAi {
         return t.trim()
     }
 }
-'''
+"""
 (src / "OfflineAi.kt").write_text(offline_ai, encoding="utf-8")
 print("OfflineAi.kt")
 
@@ -133,20 +133,20 @@ prefs = src / "Prefs.kt"
 pt = prefs.read_text(encoding="utf-8")
 if "offlineAiEnabled" not in pt:
     idx = pt.rfind("}")
-    prefs.write_text(pt[:idx] + '''
+    prefs.write_text(pt[:idx] + """
     var offlineAiEnabled: Boolean
         get() = sp.getBoolean("offline_ai_enabled", true)
         set(v) = sp.edit().putBoolean("offline_ai_enabled", v).apply()
-''' + pt[idx:], encoding="utf-8")
+""" + pt[idx:], encoding="utf-8")
 
 layout = res / "layout" / "activity_settings.xml"
 lx = layout.read_text(encoding="utf-8")
 if "sw_offline_ai" not in lx:
-    sw = '''
+    sw = """
     <androidx.appcompat.widget.SwitchCompat android:id="@+id/sw_offline_ai"
         android:layout_width="match_parent" android:layout_height="64dp"
         android:text="هوش مصنوعی آفلاین (OCR و تشخیص اشیا بدون اینترنت)" android:checked="true" />
-'''
+"""
     if "</LinearLayout>" in lx:
         lx = lx.replace("</LinearLayout>", sw + "\n</LinearLayout>", 1)
     else:
@@ -155,9 +155,10 @@ if "sw_offline_ai" not in lx:
 
 sa = src / "SettingsActivity.kt"
 sat = sa.read_text(encoding="utf-8")
+
 if "bindUnifiedApiV58()" in sat and "fun bindUnifiedApiV58" not in sat:
     idx = sat.rfind("}")
-    stub = '''
+    stub = """
     private fun bindUnifiedApiV58() {
         try {
             val uk = findViewById<android.widget.EditText?>(R.id.et_unified_api_key)
@@ -190,27 +191,27 @@ if "bindUnifiedApiV58()" in sat and "fun bindUnifiedApiV58" not in sat:
             }
         } catch (_: Throwable) {}
     }
-'''
+"""
     sat = sat[:idx] + stub + "\n" + sat[idx:]
     print("added bindUnifiedApiV58 stub")
 elif "sw_offline_ai" not in sat:
-    if "fun updateBoxes" in sat:
+    if "updateBoxes()" in sat and "sw_offline_ai" not in sat:
         sat = sat.replace(
-            "fun updateBoxes",
-            '''private fun bindOfflineAiSwitch() {
-        try {
+            "updateBoxes()",
+            """try {
             findViewById<androidx.appcompat.widget.SwitchCompat?>(R.id.sw_offline_ai)?.apply {
                 isChecked = p.offlineAiEnabled
                 setOnCheckedChangeListener { _, c -> p.offlineAiEnabled = c }
             }
         } catch (_: Throwable) {}
-    }
-    fun updateBoxes''',
+        updateBoxes()""",
             1,
         )
-        if "updateBoxes()" in sat and "bindOfflineAiSwitch()" not in sat:
-            sat = sat.replace("updateBoxes()", "bindOfflineAiSwitch(); updateBoxes()", 1)
-    print("bound offline switch via updateBoxes")
+        print("inline offline switch bind")
+
+sat = sat.replace("private private ", "private ")
+sat = re.sub(r"private\s+private\s+", "private ", sat)
+
 sa.write_text(sat, encoding="utf-8")
 print("Settings braces", sat.count("{"), sat.count("}"))
 
@@ -218,9 +219,9 @@ ptf = src / "PersianText.kt"
 ptt = ptf.read_text(encoding="utf-8")
 if "fun offlineProcess" not in ptt:
     idx = ptt.rfind("}")
-    ptf.write_text(ptt[:idx] + '''
+    ptf.write_text(ptt[:idx] + """
     fun offlineProcess(text: String): String = OfflineAi.processDocument(text)
-''' + ptt[idx:], encoding="utf-8")
+""" + ptt[idx:], encoding="utf-8")
 
 bg = proj / "app/build.gradle.kts"
 bt = bg.read_text(encoding="utf-8")
