@@ -51,10 +51,10 @@ jobs:
           echo "PROJ=$PROJ"
           echo "PROJ=$PROJ" >> "$GITHUB_ENV"
 
-      - name: Apply v6.7 patches
+      - name: Apply v6.8 patches
         run: |
           set -e
-          python3 ci/patch_v67.py
+          python3 ci/patch_v68.py
 
       - name: Setup Android SDK
         run: |
@@ -97,7 +97,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: KhanshgarZende-v6.7-apk
+          name: KhanshgarZende-v6.8-apk
           path: '**/app/build/outputs/apk/**/*.apk'
           if-no-files-found: error
           retention-days: 30
