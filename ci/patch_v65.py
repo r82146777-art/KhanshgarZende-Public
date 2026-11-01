@@ -196,7 +196,7 @@ if "fun reloadVoice" in st:
         r'fun reloadVoice\(\)\s*\{[\s\S]*?\n    \}',
         '''fun reloadVoice() {
         try { stop() } catch (_: Throwable) {}
-        try { synchronized(cache) { cache.clear() } catch (_: Throwable) {}
+        try { synchronized(cache) { cache.clear() } } catch (_: Throwable) {}
         Thread {
             try { warmUp() } catch (e: Throwable) { Log.e(TAG, "reloadVoice", e) }
         }.start()
