@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""v6.2 mini part A: Gemini detect + safe isOnline"""
+"""v6.3 part A: Gemini detect (AIza + AQAb) + safe isOnline"""
 from pathlib import Path
 import os, re, subprocess, sys
 root = Path(__file__).resolve().parent
@@ -28,10 +28,15 @@ if "fun detectAndTest" not in t:
         val base=customBase.trim().trimEnd('/')
         val tries=ArrayList<Triple<String,String,String>>()
         if(base.isNotBlank()) tries.add(Triple("custom","custom",base))
-        if(k.startsWith("AIza")) tries.add(Triple("google","Google/Gemini","gemini"))
+        // Gemini / Google AI Studio: classic AIza… and newer AQAb… keys
+        if(k.startsWith("AIza") || k.startsWith("AQAb") || k.startsWith("AIzaSy"))
+            tries.add(Triple("google","Google/Gemini","gemini"))
         if(k.startsWith("sk-or-")) tries.add(Triple("openrouter","OpenRouter","https://openrouter.ai/api/v1"))
         if(k.startsWith("xai-")) tries.add(Triple("grok","Grok","https://api.x.ai/v1"))
         if(k.startsWith("sk-")) tries.add(Triple("openai","OpenAI","https://api.openai.com/v1"))
+        // Always try Gemini early for unknown long keys that look like Google
+        if(k.length >= 20 && (k.startsWith("AQ") || k.contains("AIza")))
+            tries.add(Triple("google","Google/Gemini","gemini"))
         tries.add(Triple("google","Google/Gemini","gemini"))
         tries.add(Triple("openrouter","OpenRouter","https://openrouter.ai/api/v1"))
         tries.add(Triple("openai","OpenAI","https://api.openai.com/v1"))
@@ -58,7 +63,12 @@ if "fun detectAndTest" not in t:
     private fun tg(key:String):Pair<Boolean,String>{
         val url=URL("https://generativelanguage.googleapis.com/v1beta/models?key="+java.net.URLEncoder.encode(key,"UTF-8"))
         val c=(url.openConnection() as HttpURLConnection).apply{requestMethod="GET";connectTimeout=12000;readTimeout=15000}
-        return try{ val code=c.responseCode; if(code in 200..299) Pair(true,"Gemini OK") else Pair(false,"HTTP $code") } finally{c.disconnect()}
+        return try{
+            val code=c.responseCode
+            val body=try{(if(code in 200..299)c.inputStream else c.errorStream)?.bufferedReader()?.readText()?:""}catch(_:Throwable){""}
+            if(code in 200..299) Pair(true, if(body.contains("gemini",true)) "Gemini models OK" else "Google key OK")
+            else Pair(false,"HTTP $code ${body.take(80)}")
+        } finally{c.disconnect()}
     }
     private fun to(baseUrl:String,key:String):Pair<Boolean,String>{
         try{ val url=URL(baseUrl.trimEnd('/')+"/models")
@@ -75,6 +85,20 @@ if "fun detectAndTest" not in t:
 }
 '''
     mt.write_text(t, encoding="utf-8"); print("MultiTts")
+else:
+    # Already present — still force AQAb support into the existing function
+    if 'startsWith("AQAb")' not in t and "startsWith(\"AQAb\")" not in t:
+        t = t.replace(
+            'if(k.startsWith("AIza")) tries.add(Triple("google","Google/Gemini","gemini"))',
+            'if(k.startsWith("AIza") || k.startsWith("AQAb") || k.startsWith("AIzaSy")) tries.add(Triple("google","Google/Gemini","gemini"))\n'
+            '        if(k.length >= 20 && k.startsWith("AQ")) tries.add(Triple("google","Google/Gemini","gemini"))'
+        )
+        t = t.replace(
+            'if (k.startsWith("AIza")) tries.add(Triple("google", "Google/Gemini", "gemini"))',
+            'if (k.startsWith("AIza") || k.startsWith("AQAb") || k.startsWith("AIzaSy")) tries.add(Triple("google", "Google/Gemini", "gemini"))\n'
+            '        if (k.length >= 20 && k.startsWith("AQ")) tries.add(Triple("google", "Google/Gemini", "gemini"))'
+        )
+        mt.write_text(t, encoding="utf-8"); print("MultiTts AQAb patched")
 
 # SpeechManager: only isOnline fix (safe)
 sm=src/"SpeechManager.kt"; st=sm.read_text(encoding="utf-8")
@@ -83,3 +107,11 @@ st=st.replace(
     'private val isOnline get() = prefs.voice.startsWith("api:")',
 )
 sm.write_text(st,encoding="utf-8"); print("SM")
+
+# version 6.3
+bg = proj/"app/build.gradle.kts"
+bt = bg.read_text(encoding="utf-8")
+bt = re.sub(r"versionCode\s*=\s*\d+", "versionCode = 63", bt)
+bt = re.sub(r'versionName\s*=\s*"[^"]*"', 'versionName = "6.3"', bt)
+bg.write_text(bt, encoding="utf-8")
+print("version 6.3")
