@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""v6.2 mini: Gemini detect, voice crash, app picker, ReadAloud."""
+"""v6.2 mini part A: Gemini detect + safe isOnline"""
 from pathlib import Path
 import os, re, subprocess, sys
 root = Path(__file__).resolve().parent
@@ -76,9 +76,10 @@ if "fun detectAndTest" not in t:
 '''
     mt.write_text(t, encoding="utf-8"); print("MultiTts")
 
-# SpeechManager
+# SpeechManager: only isOnline fix (safe)
 sm=src/"SpeechManager.kt"; st=sm.read_text(encoding="utf-8")
-st=re.sub(r'private val isOnline get\(\) = prefs\.voice == "dilara" \|\| prefs\.voice == "farid" \|\| prefs\.voice\.startsWith\("api:"\)','private val isOnline get() = prefs.voice.startsWith("api:")',st)
-st=re.sub(r'fun reloadVoice\(\)\s*\{[^}]*\}','fun reloadVoice(){try{stop()}catch(_:Throwable){};try{synchronized(cache){cache.clear()}}catch(_:Throwable){};Thread{try{warmUp()}catch(e:Throwable){Log.e(TAG,"rv",e)}}.start()}',st,count=1)
-st=re.sub(r'fun warmUp\(\)\s*\{[\s\S]*?\n    \}','fun warmUp(){try{when{prefs.voice=="system"->ensureSystem();prefs.voice.startsWith("api:")->{};else->try{ensurePiper()}catch(e:Throwable){Log.e(TAG,"ep",e)}}}catch(e:Throwable){Log.e(TAG,"wu",e)}}',st,count=1)
+st=st.replace(
+    'private val isOnline get() = prefs.voice == "dilara" || prefs.voice == "farid" || prefs.voice.startsWith("api:")',
+    'private val isOnline get() = prefs.voice.startsWith("api:")',
+)
 sm.write_text(st,encoding="utf-8"); print("SM")
